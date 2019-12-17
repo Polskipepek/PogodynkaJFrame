@@ -1,4 +1,4 @@
-/*
+package misc;/*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
@@ -43,10 +43,10 @@ public class Utils {
             int nDegree = Integer.parseInt(array[0]);
             int nMinute = Integer.parseInt(array[1]);
             double nSecond = Double.parseDouble(array[2]);
-            double nDegrees = nDegree + (double) nMinute / 60 + (double) nSecond / 3600;
+            //double nDegrees = nDegree + (double) nMinute / 60 + (double) nSecond / 3600;
             //String nResult = "" + Double.toString(nDegrees).substring(0, 10);
             //System.out.println(nResult);
-            return nDegrees;
+            return nDegree + (double) nMinute / 60 + (double) nSecond / 3600;
         }
 
     }

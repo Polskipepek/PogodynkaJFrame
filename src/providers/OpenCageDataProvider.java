@@ -1,9 +1,9 @@
-/*
+package providers;/*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-
+import misc.Utils;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -47,7 +47,7 @@ public class OpenCageDataProvider implements ILocationProvider{
         double lat = Utils.Utilities.ConvertDMStoLL(jelements[0].getAsString().replace("°", "").replace("'", ""));
         double lon = Utils.Utilities.ConvertDMStoLL(jelements[1].getAsString().replace("°", "").replace("'", ""));
         //System.out.println(lat + "\t" + lon);
-        //System.out.println(Utils.Utilities.GetWeatherURL(lat, lon));
+
         return new double[]{lat, lon};
     }
         

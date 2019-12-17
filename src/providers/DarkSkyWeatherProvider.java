@@ -1,13 +1,15 @@
+package providers;
 /*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
+import misc.Utils;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-
+import misc.WeatherInfo;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -33,7 +35,7 @@ public class DarkSkyWeatherProvider implements IWeatherProvider {
         return null;
     }
 
-    public JsonObject PobierzPogodeJSON(URL url) throws MalformedURLException, ProtocolException, IOException {
+    public JsonObject PobierzPogodeJSON(URL url) throws IOException {
 
         URLConnection request = url.openConnection();
         request.connect();
