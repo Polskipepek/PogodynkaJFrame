@@ -1,10 +1,7 @@
 package misc;
 
 import com.google.gson.JsonObject;
-import providers.DarkSkyWeatherProvider;
-import providers.ILocationProvider;
-import providers.IWeatherProvider;
-import providers.OpenCageDataProvider;
+import providers.*;
 import ui.CustomLayout;
 
 import javax.swing.*;
@@ -18,8 +15,10 @@ public class Pogodynka extends Utils {
     public static String miasto;
     public static IWeatherProvider wp;
     public static ILocationProvider lp;
+    public static IPhotosProvider pp;
     static CustomLayout layout = null;
     static JsonObject rootJson = null;
+    public static JFrame GrafikaHourly = null, GrafikaDaily = null;
 
 
     public static void main(String[] args) throws ClassNotFoundException, UnsupportedLookAndFeelException, InstantiationException, IllegalAccessException, MalformedURLException {
@@ -31,6 +30,7 @@ public class Pogodynka extends Utils {
         UIManager.put("OptionPane.buttonFont", new Font("Arial", Font.PLAIN, 12));
         wp = new DarkSkyWeatherProvider();
         lp = new OpenCageDataProvider();
+        pp = new UnsplashPhotosProvider();
 
         Utils.WindowSize windowSize = new WindowSize();
         windowSize.height = 720;
@@ -65,15 +65,19 @@ public class Pogodynka extends Utils {
     }
 
     public static void SetMiasto() throws MalformedURLException {
-        miasto = JOptionPane.showInputDialog("Wpisz miasto, aby sprawdzić pogodę");
-        if (miasto.contains(" ") || miasto == null) {
-            miasto = JOptionPane.showInputDialog("Wpisz poprawna nazwe miasta, aby sprawdzić pogodę");
-            if (miasto.contains(" ") || miasto == null)
-                miasto = JOptionPane.showInputDialog("Ostatnia szansa, aby sprawdzić pogodę");
-            else System.exit(0);
+        var tempMiasto = JOptionPane.showInputDialog("Wpisz miasto, aby sprawdzić pogodę");
+        while (tempMiasto == null || tempMiasto.contains(" ") || tempMiasto.contains("-")) {
+            if (tempMiasto == null || tempMiasto.contains(" ") || tempMiasto.contains("-")) {
+                miasto = JOptionPane.showInputDialog("Wpisz poprawna nazwe miasta, aby sprawdzić pogodę");
+                if (miasto.contains(" ") || miasto == null)
+                    miasto = JOptionPane.showInputDialog("Ostatnia szansa, aby sprawdzić pogodę");
+                else System.exit(0);
+            }
         }
+        miasto = tempMiasto;
         var latlon = lp.GetLatLon(miasto);
-        rootJson = wp.getRootJson(lp.GetLatLon(miasto)[0], lp.GetLatLon(miasto)[1]);
+        rootJson = wp.getRootJson(latlon[0], latlon[1]);
+
 
     }
 
@@ -86,28 +90,35 @@ public class Pogodynka extends Utils {
         layout.getTextWeatherDaily().setText(wp.GetWeatherDaily(rootJson).description);
     }
 
-    public static void SetGrafika() {
+    public static void SetGrafika() throws MalformedURLException {
         ImageIcon hourlyBackground = new ImageIcon("Graphics/" + wp.GetWeatherHourly(rootJson).imageName);
         ImageIcon dailyBackground = new ImageIcon("Graphics/" + wp.GetWeatherDaily(rootJson).imageName);
 
         System.out.println(hourlyBackground);
+        System.out.println(dailyBackground);
 
-        JFrame GrafikaHourly = new JFrame();
+        pp.GetURLRoot();
+
+
+        GrafikaHourly = new JFrame();
         GrafikaHourly.setSize(500, 500);
         JLabel labelH = new JLabel("", hourlyBackground, JLabel.CENTER);
         labelH.setBounds(0, 0, 500, 500);
         GrafikaHourly.add((labelH));
         GrafikaHourly.setVisible(true);
+        GrafikaHourly.revalidate();
         GrafikaHourly.pack();
 
 
-        JFrame GrafikaDaily = new JFrame();
+        GrafikaDaily = new JFrame();
         GrafikaDaily.setSize(500, 500);
         JLabel labelD = new JLabel("", dailyBackground, JLabel.CENTER);
-        GrafikaDaily.pack();
         labelD.setBounds(0, 0, 500, 500);
         GrafikaDaily.add(labelD);
         GrafikaDaily.setVisible(true);
+        GrafikaDaily.revalidate();
+        GrafikaDaily.pack();
+
 
     }
 

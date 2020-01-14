@@ -76,10 +76,9 @@ public class DarkSkyWeatherProvider implements IWeatherProvider {
     }
 
     public String GetWeatherDescriptionHourly(JsonArray json) {
-
         String temp = "";
         for (JsonElement j : json) {
-            temp += new Date((long) j.getAsJsonObject().get("time").getAsFloat() * 1000) + "\nPodsumowanie:" + j.getAsJsonObject().get("summary").getAsString() + GetWeatherDescriptionNow(j.getAsJsonObject()) + "\n\n";
+            temp += new Date((long) j.getAsJsonObject().get("time").getAsFloat() * 1000) + "\nPodsumowanie: " + j.getAsJsonObject().get("summary").getAsString()+"\n"+ GetWeatherDescriptionNow(j.getAsJsonObject()) + "\n\n";
         }
         return temp;
     }
@@ -111,17 +110,15 @@ public class DarkSkyWeatherProvider implements IWeatherProvider {
         return string;
     }
 
-
     public void Init(URL pogURL) {
         System.out.println(pogURL);
     }
-
 
     @Override
     public WeatherInfo GetWeatherNow(JsonObject jRoot) {
         WeatherInfo weatherInfo = new WeatherInfo();
         weatherInfo.description = "Podsumowanie: " + GetWeatherDescriptionNow(jRoot.getAsJsonObject().getAsJsonObject("currently"));
-        weatherInfo.imageName= jRoot.getAsJsonObject().get("currently").getAsJsonObject().get("icon") + ".svg";
+        weatherInfo.imageName = jRoot.getAsJsonObject().get("currently").getAsJsonObject().get("icon") + ".svg";
         //weatherInfo.header = GetHeader(jRoot.getAsJsonObject().getAsJsonObject("currently"));
         return weatherInfo;
     }
@@ -130,7 +127,7 @@ public class DarkSkyWeatherProvider implements IWeatherProvider {
     public WeatherInfo GetWeatherHourly(JsonObject jRoot) {
         WeatherInfo weatherInfo = new WeatherInfo();
         weatherInfo.description = GetWeatherDescriptionHourly(jRoot.getAsJsonObject().getAsJsonObject("hourly").get("data").getAsJsonArray());
-        weatherInfo.imageName= jRoot.getAsJsonObject().get("hourly").getAsJsonObject().get("icon").getAsString() + ".jpg";
+        weatherInfo.imageName = jRoot.getAsJsonObject().get("hourly").getAsJsonObject().get("icon").getAsString() + ".jpg";
         return weatherInfo;
     }
 
@@ -138,7 +135,7 @@ public class DarkSkyWeatherProvider implements IWeatherProvider {
     public WeatherInfo GetWeatherDaily(JsonObject jRoot) {
         WeatherInfo weatherInfo = new WeatherInfo();
         weatherInfo.description = GetWeatherDescriptionDaily(jRoot.getAsJsonObject().getAsJsonObject("daily").get("data").getAsJsonArray());
-        weatherInfo.imageName= jRoot.getAsJsonObject().get("daily").getAsJsonObject().get("icon").getAsString()+".jpg";
+        weatherInfo.imageName = jRoot.getAsJsonObject().get("daily").getAsJsonObject().get("icon").getAsString() + ".jpg";
         return weatherInfo;
     }
 
@@ -152,41 +149,4 @@ public class DarkSkyWeatherProvider implements IWeatherProvider {
         System.out.println(jRoot);
         return jRoot;
     }
-
 }
-
-/*    public String[][] PogodaTeraz(JsonObject json, String miasto) {
-        System.out.println(json.getAsJsonObject());
-        String[][] tekst = new String[1][3];
-        //tekst[0][0] = GetHeader(json);
-        tekst[0][1] = "Miejsce: " + miasto + " " + Math.round(latlon[0] * 10000) / 10000f + " " + Math.round(latlon[1] * 10000) / 10000f;
-        tekst[0][2] = GetWeatherDescriptionNow(json);
-        return tekst;
-    }
-
-    public String[][] PogodaGodzinowo(JsonObject json) {
-        //System.out.println(json);
-        String[][] tekst = new String[50][3];
-        int i = 0;
-        for (JsonElement jObj : json.get("data").getAsJsonArray()) {
-            //tekst[i][0] = GetHeader(json) + "" + new java.util.Date((long) jObj.getAsJsonObject().get("time").getAsInt() * 1000);
-            tekst[i][2] = GetWeatherDescriptionNow(jObj.getAsJsonObject());
-
-            if (jObj.getAsJsonObject() == json.get("data").getAsJsonArray().get(12).getAsJsonObject()) {
-                break;
-            }
-            i++;
-        }
-        return tekst;
-    }
-
-    public String[][] PogodaDziennie(JsonObject json) {
-        //System.out.println(json.get("data").getAsJsonArray().get(0).getAsJsonObject());
-        String[][] tekst = new String[8][3];
-        int i = 0;
-        for (JsonElement jObj : json.get("data").getAsJsonArray()) {
-            //tekst[i][0] = GetHeader(json) + "" + new java.util.Date((long) jObj.getAsJsonObject().get("time").getAsInt() * 1000);
-            tekst[i][2] = GetWeatherDescriptionDaily(jObj.getAsJsonObject());
-        }
-        return tekst;
-    }*/

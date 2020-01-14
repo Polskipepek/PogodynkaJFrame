@@ -29,7 +29,9 @@ public class OpenCageDataProvider implements ILocationProvider {
     public static URL GetPositionURL(String cityName) {
 
         try {
-            return new URL("https://api.opencagedata.com/geocode/v1/json?q=" + cityName + "&key=" + Utils.Utilities.keyGeo + "&pretty=1");
+            URL temp =new URL("https://api.opencagedata.com/geocode/v1/json?q=" + cityName + "&key=" + Utils.Utilities.keyGeo + "&pretty=1");
+            System.out.println(temp);
+            return temp;
         } catch (MalformedURLException e) {
             e.printStackTrace();
         }
@@ -39,7 +41,7 @@ public class OpenCageDataProvider implements ILocationProvider {
     @Override
     public double[] GetLatLon(String miasto) throws MalformedURLException {
         URL posURL = GetPositionURL(miasto);
-        System.out.println(posURL.toString());
+
         JsonElement[] jelements = null;
         try {
             jelements = PobierzPozycjeJSON(posURL);
