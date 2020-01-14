@@ -1,4 +1,5 @@
 package providers;
+import com.google.gson.JsonObject;
 import misc.WeatherInfo;/*
 
  * To change this license header, choose License Headers in Project Properties.
@@ -6,17 +7,21 @@ import misc.WeatherInfo;/*
  * and open the template in the editor.
  */
 
+import java.net.URL;
+import java.util.Date;
+
 /**
  *
  * @author Michal
  */
 public interface IWeatherProvider {
-    // String GetWeatherDescriptionDaily();
 
-    WeatherInfo GetWeatherNow(double lat, double lon);
+    WeatherInfo GetWeatherNow(JsonObject jRoot);
 
-    WeatherInfo GetWeatherHours(double lat, double lon);
+    WeatherInfo GetWeatherHourly(JsonObject jRoot);
 
-    WeatherInfo GetWeatherDaily(double lat, double lon);
-
+    WeatherInfo GetWeatherDaily(JsonObject jRoot);
+    URL GetWeatherURL(double a, double b);
+    String GetHeader(JsonObject json, String type);
+    JsonObject getRootJson(double lat, double lon);
 }

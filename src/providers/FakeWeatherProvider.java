@@ -1,5 +1,9 @@
 package providers;
+import com.google.gson.JsonObject;
 import misc.WeatherInfo;
+
+import java.net.URL;
+import java.util.Date;
 /*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
@@ -13,19 +17,36 @@ import misc.WeatherInfo;
 public class FakeWeatherProvider implements IWeatherProvider{
 
     @Override
-    public WeatherInfo GetWeatherNow(double lat, double lon) {
+    public WeatherInfo GetWeatherNow(JsonObject jRoot) {
         WeatherInfo wi = new WeatherInfo();
-        wi.description =  "uansuiond\nsadnaiosd\n\t xd";
+        wi.description =  "POGOda uansuiond\nsadnaiosd\n\t xd";
         return  wi;
     }
 
     @Override
-    public WeatherInfo GetWeatherHours(double lat, double lon) {
+    public WeatherInfo GetWeatherHourly(JsonObject jRoot) {
         return null;
     }
 
     @Override
-    public WeatherInfo GetWeatherDaily(double lat, double lon) {
+    public WeatherInfo GetWeatherDaily(JsonObject jRoot) {
+        return null;
+    }
+
+    @Override
+    public URL GetWeatherURL(double a, double b) {
+        return null;
+    }
+
+
+
+    @Override
+    public String GetHeader(JsonObject json, String type) {
+        return null;
+    }
+
+    @Override
+    public JsonObject getRootJson(double lat, double lon) {
         return null;
     }
 }

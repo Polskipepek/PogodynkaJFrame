@@ -7,9 +7,11 @@ package misc;/*
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+
 import java.io.IOException;
 
 import java.net.MalformedURLException;
+import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.io.InputStream;
@@ -19,7 +21,6 @@ import java.net.URL;
 import java.net.URLConnection;
 
 /**
- *
  * @author Michal
  */
 public class Utils {
@@ -48,6 +49,16 @@ public class Utils {
             //System.out.println(nResult);
             return nDegree + (double) nMinute / 60 + (double) nSecond / 3600;
         }
+
+        public static Date UnixToDate(int unixtime) {
+            Date time = new Date((long) unixtime * 1000);
+            return time;
+        }
+    }
+
+    public static class WindowSize {
+        public int width;
+        public int height;
 
     }
 

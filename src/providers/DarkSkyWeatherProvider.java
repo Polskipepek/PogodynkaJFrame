@@ -4,12 +4,15 @@ package providers;
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
+
+import com.google.gson.JsonArray;
 import misc.Utils;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import misc.WeatherInfo;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -17,6 +20,7 @@ import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.Date;
 
 
 /**
@@ -29,13 +33,16 @@ public class DarkSkyWeatherProvider implements IWeatherProvider {
     public URL GetWeatherURL(double latitude, double longtitude) {
         try {
             return new URL(" https://api.darksky.net/forecast/" + Utils.Utilities.keyWeather + "/" + latitude + "," + longtitude + "?lang=" + Utils.Utilities.getLanguageCode() + "&units=si");
+
         } catch (MalformedURLException e) {
             e.printStackTrace();
         }
         return null;
     }
 
+
     public JsonObject PobierzPogodeJSON(URL url) throws IOException {
+        //System.out.println(url);
 
         URLConnection request = url.openConnection();
         request.connect();
@@ -51,7 +58,7 @@ public class DarkSkyWeatherProvider implements IWeatherProvider {
     }
 
     public String GetHeader(JsonObject json, String type) {
-        String podsumowanie = json.get(type).getAsJsonObject().get("summary").getAsString();
+        String podsumowanie = json.get("currently").getAsJsonObject().get(type).getAsString();
         return podsumowanie;
     }
 
@@ -65,25 +72,90 @@ public class DarkSkyWeatherProvider implements IWeatherProvider {
         float widocznosc = json.get("visibility").getAsFloat();
 
         //java.util.Date data = new java.util.Date((long) godzinatmp * 1000);
-        return "\nPodsumowanie: " + json.get("summary").getAsString() + "\nTemperatura: " + temperatura + "°C, \nTemperatura odczuwalna: " + odczuwalna + "°C, \nCisnienie: " + cisnienie + " hPa, \nPredkosc wiatru: " + predkoscWiatru + " km/h, \nWidocznosc: " + widocznosc + " km\n";
+        return "Temperatura: " + temperatura + "°C, \nTemperatura odczuwalna: " + odczuwalna + "°C, \nCisnienie: " + cisnienie + " hPa, \nPredkosc wiatru: " + predkoscWiatru + " km/h, \nWidocznosc: " + widocznosc + " km\n";
     }
 
-    public String GetWeatherDescriptionDaily(JsonObject json) {
-        //Icon icon = json.get("icon").getAsJsonObject();
-        String wschod = json.get("sunriseTime").getAsString();
-        String zachod = json.get("sunsetTime").getAsString();
-        float temperaturaMax = json.get("temperatureHigh").getAsFloat();
-        float temperaturaMin = json.get("temperatureLow").getAsFloat();
-        float zakryteNiebo = json.get("cloudCover").getAsFloat();
-        float cisnienie = json.get("pressure").getAsFloat();
-        float predkoscWiatru = json.get("windSpeed").getAsFloat();
-        float widocznosc = json.get("visibility").getAsFloat();
+    public String GetWeatherDescriptionHourly(JsonArray json) {
 
-        //java.util.Date data = new java.util.Date((long) godzinatmp * 1000);
-        return "\nWschod: " + wschod + "\nZachod: " + zachod + "\nTemperatura maksymalna: " + temperaturaMax + "°C,\nTemperatura minimalna: " + temperaturaMin + "°C, \nNiebo zakryte chmurami: " + zakryteNiebo * 100f + "%, \nCisnienie: " + cisnienie + " hPa, \nPredkosc wiatru: " + predkoscWiatru + " km/h, \nWidocznosc: " + widocznosc + " km\n";
+        String temp = "";
+        for (JsonElement j : json) {
+            temp += new Date((long) j.getAsJsonObject().get("time").getAsFloat() * 1000) + "\nPodsumowanie:" + j.getAsJsonObject().get("summary").getAsString() + GetWeatherDescriptionNow(j.getAsJsonObject()) + "\n\n";
+        }
+        return temp;
     }
 
-    public String[][] PogodaTeraz(JsonObject json, String miasto) {
+    public String GetWeatherDescriptionDaily(JsonArray jsonA) {
+        String string = "";
+        for (JsonElement json : jsonA) {
+            //Icon icon = json.get("icon").getAsJsonObject();
+            json = json.getAsJsonObject();
+            float godzinatmp = ((JsonObject) json).get("time").getAsFloat();
+            float wschod = ((JsonObject) json).get("sunriseTime").getAsFloat();
+            float zachod = ((JsonObject) json).get("sunsetTime").getAsFloat();
+            float temperaturaMax = ((JsonObject) json).get("temperatureHigh").getAsFloat();
+            float temperaturaMin = ((JsonObject) json).get("temperatureLow").getAsFloat();
+            float zakryteNiebo = ((JsonObject) json).get("cloudCover").getAsFloat();
+            float cisnienie = ((JsonObject) json).get("pressure").getAsFloat();
+            float predkoscWiatru = ((JsonObject) json).get("windSpeed").getAsFloat();
+            float widocznosc = ((JsonObject) json).get("visibility").getAsFloat();
+
+            Date data = new Date((long) godzinatmp * 1000);
+            Date wschodD = new Date((long) wschod * 1000);
+            Date zachodD = new Date((long) zachod * 1000);
+
+
+            string += data + "\nWschod: " + wschodD + "\nZachod: " + zachodD + "\nTemperatura maksymalna: " + temperaturaMax + "°C,\nTemperatura minimalna: " + temperaturaMin
+                    + "°C, \nNiebo zakryte chmurami: " + zakryteNiebo * 100f + "%, \nCisnienie: " + cisnienie + " hPa, \nPredkosc wiatru: " + predkoscWiatru + " km/h, \nWidocznosc: " + widocznosc + " km\n\n";
+
+        }
+        return string;
+    }
+
+
+    public void Init(URL pogURL) {
+        System.out.println(pogURL);
+    }
+
+
+    @Override
+    public WeatherInfo GetWeatherNow(JsonObject jRoot) {
+        WeatherInfo weatherInfo = new WeatherInfo();
+        weatherInfo.description = "Podsumowanie: " + GetWeatherDescriptionNow(jRoot.getAsJsonObject().getAsJsonObject("currently"));
+        weatherInfo.imageName= jRoot.getAsJsonObject().get("currently").getAsJsonObject().get("icon") + ".svg";
+        //weatherInfo.header = GetHeader(jRoot.getAsJsonObject().getAsJsonObject("currently"));
+        return weatherInfo;
+    }
+
+    @Override
+    public WeatherInfo GetWeatherHourly(JsonObject jRoot) {
+        WeatherInfo weatherInfo = new WeatherInfo();
+        weatherInfo.description = GetWeatherDescriptionHourly(jRoot.getAsJsonObject().getAsJsonObject("hourly").get("data").getAsJsonArray());
+        weatherInfo.imageName= jRoot.getAsJsonObject().get("hourly").getAsJsonObject().get("icon").getAsString() + ".jpg";
+        return weatherInfo;
+    }
+
+    @Override
+    public WeatherInfo GetWeatherDaily(JsonObject jRoot) {
+        WeatherInfo weatherInfo = new WeatherInfo();
+        weatherInfo.description = GetWeatherDescriptionDaily(jRoot.getAsJsonObject().getAsJsonObject("daily").get("data").getAsJsonArray());
+        weatherInfo.imageName= jRoot.getAsJsonObject().get("daily").getAsJsonObject().get("icon").getAsString()+".jpg";
+        return weatherInfo;
+    }
+
+    public JsonObject getRootJson(double lat, double lon) {
+        JsonObject jRoot = null;
+        try {
+            jRoot = PobierzPogodeJSON(GetWeatherURL(lat, lon));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        System.out.println(jRoot);
+        return jRoot;
+    }
+
+}
+
+/*    public String[][] PogodaTeraz(JsonObject json, String miasto) {
         System.out.println(json.getAsJsonObject());
         String[][] tekst = new String[1][3];
         //tekst[0][0] = GetHeader(json);
@@ -117,58 +189,4 @@ public class DarkSkyWeatherProvider implements IWeatherProvider {
             tekst[i][2] = GetWeatherDescriptionDaily(jObj.getAsJsonObject());
         }
         return tekst;
-    }
-
-    public void Init(URL pogURL, double[] pos) throws ProtocolException, IOException {
-        System.out.println(pogURL);
-        // _rootJson = PobierzPogodeJSON(pogURL).getAsJsonObject();
-
-        //JsonObject teraz = rootJSON.getAsJsonObject().getAsJsonObject("currently");
-        //JsonObject godzinowo = rootJSON.getAsJsonObject().getAsJsonObject("hourly");
-        //JsonObject dziennie = ;
-        //JsonArray alerty = rootJSON.getAsJsonObject().getAsJsonArray("alerts");
-        //DarkSkyWeatherProcessor.PogodaTeraz(teraz);
-        //DarkSkyWeatherProcessor.PogodaGodzinowo(godzinowo);
-        //DarkSkyWeatherProcessor.PogodaDziennie(dziennie);
-        //DarkSkyWeatherProcessor.System.out.println(json);
-    }
-
-    @Override
-    public WeatherInfo GetWeatherDaily(double lat, double lon) {
-        WeatherInfo wi = new WeatherInfo();
-        //var Pogoda = PogodaDziennie(_rootJson.getAsJsonObject().getAsJsonObject("daily"));
-        return wi;
-    }
-
-    @Override
-    public WeatherInfo GetWeatherNow(double lat, double lon) {
-        URL weatherURL = null;
-        try {
-            weatherURL = GetWeatherURL(lat, lon);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        WeatherInfo weatherInfo = new WeatherInfo();
-        var jRoot = getRootJson(lat, lon);
-        weatherInfo.description = GetWeatherDescriptionNow(jRoot.getAsJsonObject().getAsJsonObject("currently"));
-        //weatherInfo.header = GetHeader(jRoot.getAsJsonObject().getAsJsonObject("currently"));
-
-        return weatherInfo;
-    }
-
-    @Override
-    public WeatherInfo GetWeatherHours(double lat, double lon) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    public JsonObject getRootJson(double lat, double lon) {
-        JsonObject jRoot = null;
-        try {
-            jRoot = PobierzPogodeJSON(GetWeatherURL(lat, lon));
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return jRoot;
-    }
-
-}
+    }*/

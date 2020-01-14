@@ -3,10 +3,14 @@ package providers;/*
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
+
+import misc.Pogodynka;
 import misc.Utils;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+
+import javax.swing.*;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -18,29 +22,28 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- *
  * @author Michal
  */
-public class OpenCageDataProvider implements ILocationProvider{
+public class OpenCageDataProvider implements ILocationProvider {
 
     public static URL GetPositionURL(String cityName) {
+
         try {
             return new URL("https://api.opencagedata.com/geocode/v1/json?q=" + cityName + "&key=" + Utils.Utilities.keyGeo + "&pretty=1");
-            //System.out.println(url);
-        } catch (MalformedURLException ex) {
-            Logger.getLogger(Utils.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
         }
         return null;
     }
 
-        @Override
-        public double[] GetLatLon(String miasto) {
+    @Override
+    public double[] GetLatLon(String miasto) throws MalformedURLException {
         URL posURL = GetPositionURL(miasto);
         System.out.println(posURL.toString());
-            JsonElement[] jelements = null;
+        JsonElement[] jelements = null;
         try {
             jelements = PobierzPozycjeJSON(posURL);
-        }catch(IOException ex){
+        } catch (IOException ex) {
             ex.printStackTrace();
             return null;
         }
@@ -50,7 +53,7 @@ public class OpenCageDataProvider implements ILocationProvider{
 
         return new double[]{lat, lon};
     }
-        
+
     public static JsonElement[] PobierzPozycjeJSON(URL url) throws MalformedURLException, ProtocolException, IOException {
         // Connect to the URL using java's native library
         URLConnection request = url.openConnection();
