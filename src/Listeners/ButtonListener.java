@@ -5,6 +5,7 @@ import misc.Pogodynka;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
+import java.io.IOException;
 import java.net.MalformedURLException;
 
 public class ButtonListener implements ActionListener  {
@@ -22,7 +23,7 @@ public class ButtonListener implements ActionListener  {
         Pogodynka.GrafikaHourly.dispatchEvent(new WindowEvent(Pogodynka.GrafikaHourly,WindowEvent.WINDOW_CLOSING));
         try {
             Pogodynka.SetGrafika();
-        } catch (MalformedURLException ex) {
+        } catch (IOException ex) {
             ex.printStackTrace();
         }
     }

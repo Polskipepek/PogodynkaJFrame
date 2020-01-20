@@ -4,9 +4,12 @@ import com.google.gson.JsonObject;
 import providers.*;
 import ui.CustomLayout;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
+import java.io.IOException;
 import java.net.MalformedURLException;
+import java.sql.SQLSyntaxErrorException;
 
 /**
  * @author Michal
@@ -21,11 +24,11 @@ public class Pogodynka extends Utils {
     public static JFrame GrafikaHourly = null, GrafikaDaily = null;
 
 
-    public static void main(String[] args) throws ClassNotFoundException, UnsupportedLookAndFeelException, InstantiationException, IllegalAccessException, MalformedURLException {
+    public static void main(String[] args) throws ClassNotFoundException, UnsupportedLookAndFeelException, InstantiationException, IllegalAccessException, IOException {
         new Pogodynka().Init();
     }
 
-    void Init() throws ClassNotFoundException, UnsupportedLookAndFeelException, InstantiationException, IllegalAccessException, MalformedURLException {
+    void Init() throws ClassNotFoundException, UnsupportedLookAndFeelException, InstantiationException, IllegalAccessException, IOException {
         UIManager.put("OptionPane.messageFont", new Font("Arial", Font.BOLD, 15));
         UIManager.put("OptionPane.buttonFont", new Font("Arial", Font.PLAIN, 12));
         wp = new DarkSkyWeatherProvider();
@@ -69,7 +72,7 @@ public class Pogodynka extends Utils {
         while (tempMiasto == null || tempMiasto.contains(" ") || tempMiasto.contains("-")) {
             if (tempMiasto == null || tempMiasto.contains(" ") || tempMiasto.contains("-")) {
                 miasto = JOptionPane.showInputDialog("Wpisz poprawna nazwe miasta, aby sprawdzić pogodę");
-                if (miasto.contains(" ") || miasto == null)
+                if (miasto == null || miasto.contains(" "))
                     miasto = JOptionPane.showInputDialog("Ostatnia szansa, aby sprawdzić pogodę");
                 else System.exit(0);
             }
@@ -90,17 +93,27 @@ public class Pogodynka extends Utils {
         layout.getTextWeatherDaily().setText(wp.GetWeatherDaily(rootJson).description);
     }
 
-    public static void SetGrafika() throws MalformedURLException {
-        ImageIcon hourlyBackground = new ImageIcon("Graphics/" + wp.GetWeatherHourly(rootJson).imageName);
-        ImageIcon dailyBackground = new ImageIcon("Graphics/" + wp.GetWeatherDaily(rootJson).imageName);
-
-        System.out.println(hourlyBackground);
-        System.out.println(dailyBackground);
-
-        pp.GetURLRoot();
+    public static void SetGrafika() throws IOException {
+        //ImageIcon hourlyBackground = new ImageIcon("Graphics/" + wp.GetWeatherHourly(rootJson).imageName);
+        //ImageIcon dailyBackground = new ImageIcon("Graphics/" + wp.GetWeatherDaily(rootJson).imageName);
 
 
-        GrafikaHourly = new JFrame();
+        String nazwaObrazkaH = wp.GetWeatherHourly(rootJson).imageName;
+        String nazwaObrazkaD = wp.GetWeatherHourly(rootJson).imageName;
+        JsonObject jsonPPh = pp.GetJSON(pp.GetURLFull(nazwaObrazkaH));
+        JsonObject jsonPPd = pp.GetJSON(pp.GetURLFull(nazwaObrazkaD));
+
+        Image himage = pp.GetRandomPhotoFromJSON(jsonPPh);
+        ImageIcon hourlyBackground = new ImageIcon(himage);
+
+        Image dimage = pp.GetRandomPhotoFromJSON(jsonPPd);
+        ImageIcon dailyBackground = new ImageIcon(dimage);
+
+
+        pp.GetURLFull(wp.GetWeatherDaily(rootJson).imageName);
+
+
+        GrafikaHourly = new JFrame("Godzinowo " + nazwaObrazkaH);
         GrafikaHourly.setSize(500, 500);
         JLabel labelH = new JLabel("", hourlyBackground, JLabel.CENTER);
         labelH.setBounds(0, 0, 500, 500);
@@ -110,11 +123,19 @@ public class Pogodynka extends Utils {
         GrafikaHourly.pack();
 
 
-        GrafikaDaily = new JFrame();
+        GrafikaDaily = new JFrame("Dziennie " + nazwaObrazkaD);
         GrafikaDaily.setSize(500, 500);
         JLabel labelD = new JLabel("", dailyBackground, JLabel.CENTER);
         labelD.setBounds(0, 0, 500, 500);
         GrafikaDaily.add(labelD);
+
+        GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+        GraphicsDevice defaultScreen = ge.getDefaultScreenDevice();
+        Rectangle rect = defaultScreen.getDefaultConfiguration().getBounds();
+        int x = (int) rect.getMaxX() - 2 * GrafikaDaily.getWidth();
+        int y = 0;
+        GrafikaDaily.setLocation(x, y);
+
         GrafikaDaily.setVisible(true);
         GrafikaDaily.revalidate();
         GrafikaDaily.pack();
